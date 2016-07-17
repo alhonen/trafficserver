@@ -253,10 +253,13 @@ read_MachineList(const char *filename, int afd)
       Lfail:
         if (afd == -1) {
           Warning("read machine list failure, bad port, line %d", ln);
+          close(fd);
+          ats_free(l);
           return NULL;
         } else {
           char s[256];
           snprintf(s, sizeof s, "bad port, line %d", ln);
+          ats_free(l);
           return (MachineList *)ats_strdup(s);
         }
       }
@@ -276,5 +279,9 @@ read_MachineList(const char *filename, int afd)
       return (MachineList *)ats_strdup("number of machines does not match length of list\n");
     }
   }
-  return (afd != -1) ? (MachineList *)NULL : l;
+  if (afd != -1) {
+    ats_free(l);
+    return (MachineList *)NULL;
+  }
+  return l;
 }
