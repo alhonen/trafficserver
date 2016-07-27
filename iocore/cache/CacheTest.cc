@@ -24,6 +24,7 @@
 
 #include "P_Cache.h"
 #include "P_CacheTest.h"
+#include "P_ClusterMachine.h"
 #include "api/ts/ts.h"
 #include <vector>
 
@@ -661,3 +662,10 @@ REGRESSION_TEST(ram_cache)(RegressionTest *t, int level, int *pstatus)
       *pstatus = REGRESSION_TEST_FAILED;
   }
 }
+
+REGRESSION_TEST(read_machinelist_JARI)(RegressionTest *t, int level, int *pstatus)
+{
+  read_MachineList("/home/jari/foo.bar", -1);
+  *pstatus = REGRESSION_TEST_PASSED;
+}
+

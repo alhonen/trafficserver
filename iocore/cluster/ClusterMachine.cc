@@ -208,11 +208,13 @@ read_MachineList(const char *filename, int afd)
 {
   char line[256];
   int n = -1, i = 0, ln = 0;
-  MachineList *l = NULL;
+  //MachineList *l = NULL;
+  ats_scoped_obj<MachineList> l;
   ink_assert(filename || (afd != -1));
   ats_scoped_str path(RecConfigReadConfigPath(NULL, filename));
+  ats_scoped_fd sfd;
 
-  int fd = ((afd != -1) ? afd : open(path, O_RDONLY));
+  int fd = ((afd != -1) ? afd : sfd=open(path, O_RDONLY));
   if (fd >= 0) {
     while (ink_file_fd_readline(fd, sizeof(line) - 1, line) > 0) {
       ln++;
@@ -221,7 +223,8 @@ read_MachineList(const char *filename, int afd)
       if (n == -1 && ParseRules::is_digit(*line)) {
         n = atoi(line);
         if (n > 0) {
-          l    = (MachineList *)ats_malloc(sizeof(MachineList) + (n - 1) * sizeof(MachineListElement));
+          //l    = (MachineList *)ats_malloc(sizeof(MachineList) + (n - 1) * sizeof(MachineListElement));
+          l    = new (MachineList);
           l->n = 0;
         } else {
           l = NULL;
@@ -253,7 +256,6 @@ read_MachineList(const char *filename, int afd)
       Lfail:
         if (afd == -1) {
           Warning("read machine list failure, bad port, line %d", ln);
-          close(fd);
           ats_free(l);
           return NULL;
         } else {
@@ -264,7 +266,6 @@ read_MachineList(const char *filename, int afd)
         }
       }
     }
-    close(fd);
   } else {
     Warning("read machine list failure, open failed");
     return NULL;
